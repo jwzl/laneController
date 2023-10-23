@@ -5,10 +5,11 @@
 #include "common.h"
 
 
-void do_fee_indicator(struct server_context* context, uint8_t *buffer, uint32_t len){
+void do_fee_indicator(void* d, uint8_t *buffer, uint32_t len){
 	int res;
 	int status = 0;
 	struct message* response;
+	struct server_context* context = d;
 	serial_device_t* dev = &context->devs[FEE_SDEV_IDX];
 	
 	res = serial_dev_open(dev);

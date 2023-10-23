@@ -9,18 +9,17 @@
 
 #define RAILING_CTRL_IO (112U)
 
-void do_railing_machine(struct server_context* context, uint8_t *buffer, uint32_t len){
+void do_railing_machine(void* data, uint8_t *buffer, uint32_t len){
 	int res = 0;
 	int status = 0;
 	uint8_t cmd = buffer[0];
 	struct message* response;
+	struct server_context* context = data;
 	unsigned gpio = context->railing_ctrl_io;
 
-	if(cmd == 0){
-		//Down
+	if(cmd == 0){ //Down
 		gpio_set_value(gpio, 0);
-	}else{
-		//Up
+	}else{//Up
 		gpio_set_value(gpio, 1);
 	}
 
@@ -42,16 +41,17 @@ void do_railing_machine(struct server_context* context, uint8_t *buffer, uint32_
 	response = new_railing_status_message(status);
 	res = send_msg(context->sock, response, length(response));
 	if(res != length(response)){
-		printf("send railing machine response failed %d \r\n", res);
+		errorf("send railing machine response failed %d \r\n", res);
 	}
 	destory_message(&response);
 }
 
-void do_canopy_light(struct server_context* context, uint8_t *buffer, uint32_t len){
+void do_canopy_light(void* data, uint8_t *buffer, uint32_t len){
 	int res = 0;
 	int status = 0;
 	uint8_t cmd = buffer[0];
 	struct message* response;
+	struct server_context* context = data;
 	
 	/*switch(cmd){
 	case 0:

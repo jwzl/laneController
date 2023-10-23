@@ -6,6 +6,21 @@
 
 static uint8_t seq_count = 0;
 
+uint32_t cpu2be(uint32_t val){
+	uint32_t res ;
+	uint8_t* v = (uint8_t*)&val;
+
+	res =  ((uint32_t)v[0]) <<24;
+	res |= ((uint32_t)v[1]) <<16;
+	res |= ((uint32_t)v[2]) <<8;
+	res |= (uint32_t)v[3];
+
+	return res;
+}
+uint32_t be2cpu(uint32_t val){
+	return cpu2be(val);
+}
+
 struct message* new_message(uint32_t length){
 	size_t size = length + sizeof(struct message)+ 1;
 	struct message* msg = (struct message *)malloc(size);
@@ -17,13 +32,12 @@ struct message* new_message(uint32_t length){
 	msg->stx = 0xFFFF;
 	msg->version = 0x00;
 	msg->sequence = seq_count%9;
-	msg->length = length &0xFFFF;
-	
+	msg->length = cpu2be(length);
 	return msg;	
 }
 
 int length(struct message* msg){
-	return msg->length + sizeof(struct message)+ 1;
+	return be2cpu(msg->length) + sizeof(struct message)+ 1;
 }
 
 static uint8_t xor_sum(uint8_t *addr, uint32_t length){
@@ -40,14 +54,14 @@ static uint8_t xor_sum(uint8_t *addr, uint32_t length){
 int check_msg_xor_sum(struct message* msg){
 	uint8_t sum;
 	size_t size = sizeof(struct message)-2;
-	size += msg->length;
+	size += be2cpu(msg->length);
 
 	sum = xor_sum(&msg->version, size);
 
-	return sum == msg->data[msg->length];
+	return sum == msg->data[be2cpu(msg->length)];
 }
 
-struct message* new_heartbeat_message(){
+struct message* new_heartbeat_request(){
 	size_t size = sizeof(struct message)-2;
 	struct message* msg = new_message(1);
 
@@ -55,7 +69,21 @@ struct message* new_heartbeat_message(){
 
 	msg->sequence = MSG_SEQ_HEARTBEAT;
 	msg->data[0] = 0xB0;
-	size += msg->length;
+	size += be2cpu(msg->length);
+	msg->data[1] = xor_sum(&msg->version, size);
+
+	return msg;
+}
+
+struct message* new_heartbeat_response(){
+	size_t size = sizeof(struct message)-2;
+	struct message* msg = new_message(1);
+
+	if(msg == NULL) return NULL;
+
+	msg->sequence = MSG_SEQ_RSP_HEARTBEAT;
+	msg->data[0] = 0x00;
+	size += be2cpu(msg->length);
 	msg->data[1] = xor_sum(&msg->version, size);
 
 	return msg;
@@ -69,7 +97,7 @@ struct message* new_serial_port_info_message(uint8_t data[20]){
 
 	msg->data[0] = 0xA0;
 	memcpy(&msg->data[1], data, 20);
-	size += msg->length;
+	size += be2cpu(msg->length);
 	msg->data[22] = xor_sum(&msg->version, size);
 
 	return msg;
@@ -84,7 +112,7 @@ struct message* new_railing_status_message(uint8_t status){
 	msg->data[0] = 0xD3;
 	msg->data[1] = status;
 	
-	size += msg->length;
+	size += be2cpu(msg->length);
 	msg->data[2] = xor_sum(&msg->version, size);
 
 	return msg;
@@ -99,7 +127,7 @@ struct message* new_fee_indicator_message(uint8_t status){
 	msg->data[0] = 0xD4;
 	msg->data[1] = status;
 	
-	size += msg->length;
+	size += be2cpu(msg->length);
 	msg->data[2] = xor_sum(&msg->version, size);
 
 	return msg;
@@ -115,7 +143,7 @@ struct message* new_ticket_printer_message(uint8_t res, uint8_t status){
 	msg->data[1] = res;
 	msg->data[2] = status;
 	
-	size += msg->length;
+	size += be2cpu(msg->length);
 	msg->data[3] = xor_sum(&msg->version, size);
 
 	return msg;
@@ -131,7 +159,7 @@ struct message* new_weighing_platform_message(uint8_t res, uint8_t* buffer, int 
 	msg->data[1] = res;
 	memcpy(&msg->data[2], buffer, len);
 	
-	size += msg->length;
+	size += be2cpu(msg->length);
 	msg->data[len+1] = xor_sum(&msg->version, size);
 
 	return msg;

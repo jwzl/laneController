@@ -34,7 +34,8 @@ struct message {
 } __packed;
 
 struct message* new_message(uint32_t length);
-struct message* new_heartbeat_message();
+struct message* new_heartbeat_request();
+struct message* new_heartbeat_response();
 void destory_message(struct message** msg);
 int check_msg_xor_sum(struct message* msg);
 int length(struct message* msg);

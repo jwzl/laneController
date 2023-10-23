@@ -3,5 +3,6 @@
 
 #include "common.h"
 
-void listen_and_serve(const char* addr, int port);
+extern char* cfgfile;
+int run_lane_controler(const char* addr, int port);
 #endif
