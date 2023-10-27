@@ -3,7 +3,7 @@ OBJS = main.o  protocol.o \
 		server.o utils/thread.o \
 		utils/config.o utils/socket.o \
 		utils/util.o utils/string_util.o \
-		fee_indicator.o railing_machine.o \
+		serial_devices.o railing_machine.o \
 		drivers/gpio.o utils/log.o \
 		drivers/serial.o utils/dictionary.o \
 		utils/iniparser.o  utils/list.o \

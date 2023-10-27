@@ -18,8 +18,10 @@ void do_railing_machine(void* data, uint8_t *buffer, uint32_t len){
 	unsigned gpio = context->railing_ctrl_io;
 
 	if(cmd == 0){ //Down
+		infof("GPIO DOWN \r\n");
 		gpio_set_value(gpio, 0);
 	}else{//Up
+		infof("GPIO UP \r\n");
 		gpio_set_value(gpio, 1);
 	}
 

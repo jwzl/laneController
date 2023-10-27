@@ -6,21 +6,6 @@
 
 static uint8_t seq_count = 0;
 
-uint32_t cpu2be(uint32_t val){
-	uint32_t res ;
-	uint8_t* v = (uint8_t*)&val;
-
-	res =  ((uint32_t)v[0]) <<24;
-	res |= ((uint32_t)v[1]) <<16;
-	res |= ((uint32_t)v[2]) <<8;
-	res |= (uint32_t)v[3];
-
-	return res;
-}
-uint32_t be2cpu(uint32_t val){
-	return cpu2be(val);
-}
-
 struct message* new_message(uint32_t length){
 	size_t size = length + sizeof(struct message)+ 1;
 	struct message* msg = (struct message *)malloc(size);
@@ -89,7 +74,21 @@ struct message* new_heartbeat_response(){
 	return msg;
 }
 
-struct message* new_serial_port_info_message(uint8_t data[20]){
+struct message* new_serial_info_request(uint8_t code){
+	size_t size = sizeof(struct message)-2;
+	struct message* msg = new_message(2);
+
+	if(msg == NULL) return NULL;
+
+	msg->data[0] = 0xA0;
+	msg->data[1] = code;
+	size += be2cpu(msg->length);
+	msg->data[2] = xor_sum(&msg->version, size);
+
+	return msg;
+}
+
+struct message* new_serial_info_response(uint8_t data[20]){
 	size_t size = sizeof(struct message)-2;
 	struct message* msg = new_message(21);
 
@@ -99,6 +98,21 @@ struct message* new_serial_port_info_message(uint8_t data[20]){
 	memcpy(&msg->data[1], data, 20);
 	size += be2cpu(msg->length);
 	msg->data[22] = xor_sum(&msg->version, size);
+
+	return msg;
+}
+
+struct message* new_railing_request(uint8_t status){
+	size_t size = sizeof(struct message)-2;
+	struct message* msg = new_message(2);
+
+	if(msg == NULL) return NULL;
+
+	msg->data[0] = 0xA3;
+	msg->data[1] = status;
+	
+	size += be2cpu(msg->length);
+	msg->data[2] = xor_sum(&msg->version, size);
 
 	return msg;
 }
@@ -118,6 +132,21 @@ struct message* new_railing_status_message(uint8_t status){
 	return msg;
 }
 
+struct message* new_fee_indicator_request(uint8_t *data, uint32_t len){
+	size_t size = sizeof(struct message)-2;
+	struct message* msg = new_message(len+1);
+
+	if(msg == NULL) return NULL;
+
+	msg->data[0] = 0xA4;
+	memcpy(&msg->data[1], data, len);
+	
+	size += be2cpu(msg->length);
+	msg->data[len] = xor_sum(&msg->version, size);
+
+	return msg;
+}
+
 struct message* new_fee_indicator_message(uint8_t status){
 	size_t size = sizeof(struct message)-2;
 	struct message* msg = new_message(2);
@@ -129,6 +158,22 @@ struct message* new_fee_indicator_message(uint8_t status){
 	
 	size += be2cpu(msg->length);
 	msg->data[2] = xor_sum(&msg->version, size);
+
+	return msg;
+}
+
+struct message* new_pos_response(uint8_t status, uint8_t *data, uint32_t len){
+	size_t size = sizeof(struct message)-2;
+	struct message* msg = new_message(len+2);
+
+	if(msg == NULL) return NULL;
+
+	msg->data[0] = 0xD5;
+	msg->data[1] = status;
+	memcpy(&msg->data[2], data, len);
+	
+	size += be2cpu(msg->length);
+	msg->data[len+1] = xor_sum(&msg->version, size);
 
 	return msg;
 }

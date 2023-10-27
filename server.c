@@ -113,47 +113,9 @@ void do_serial_info(void* data, uint8_t *buffer, uint32_t len){
 			//get_serial_setting_info(msg);
 	}else{
 			//currently not  supoort.
-	}	
-}
-
-#define POS_SERIAL_DEV_IDX	(2U)
-void do_pos(void* data, uint8_t *buffer, uint32_t len){
-}
-
-#define PRINTER_SERIAL_DEV_IDX	(3U)
-void do_ticket_printer(void* data, uint8_t *buffer, uint32_t len){
-	int res = 0;
-	int status = 0;
-	struct message* response;
-	struct server_context* context = data;
-	serial_device_t* dev = &context->devs[PRINTER_SERIAL_DEV_IDX];
-
-	dev->debug = 1;
-	
-	res = serial_dev_open(dev);
-	if(res < 0){
-		res = 1;
-		goto resp;
 	}
 
-	res = serial_dev_send(dev, buffer, len);
-	if(res != len){
-		res = 1;
-		goto out;
-	}
-
-	//device no response, we set it as 0x00.
-	status = 0;
-
-out:
-	serial_dev_close(dev);
-resp:	
-	response = new_ticket_printer_message(res, status);
-	res = send_msg(context->sock, response, length(response));
-	if(res != length(response)){
-		errorf("send railing machine response failed %d \r\n", res);
-	}
-	destory_message(&response);
+	infof("SSERIAL INFO  GET \r\n");
 }
 
 #define WP_SERIAL_DEV_IDX	(4U)
@@ -257,7 +219,7 @@ static msg_handler lane_camera_handlers[]={
 void process_message(struct server_context* context, struct message* msg){
 	int i = 0;
 	msg_handler* h;
-	uint32_t len = msg->length;
+	uint32_t len = be2cpu(msg->length);
 	uint8_t frame_type = msg->data[0];
 	msg_handler* handlers = context->handlers;
 
@@ -338,6 +300,7 @@ static void* do_heart_beat(void* p){
 
 static void server_init(struct server_context* context){
 	railing_machine_init(context);
+	serial_devices_init(context);
 	Thread_start(do_heart_beat, context);
 }
 

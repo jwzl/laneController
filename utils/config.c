@@ -19,6 +19,8 @@ int load_config_from_file(struct server_context* context, char * ini_name){
 	if(context->keepalive_time < 1000)
 		context->keepalive_time = 1000;
 	context->timeout = iniparser_getint(ini, "core:response_timeout", 3000);
+	if(context->timeout < 1000)
+		context->timeout = 1000;
 	context->debug = iniparser_getint(ini, "core:debug", 0);
 	
     /*railing*/

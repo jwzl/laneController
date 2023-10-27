@@ -31,12 +31,19 @@ struct server_context {
 	msg_handler*	handlers;
 };
 
-#define FEE_SDEV_IDX	(1U)
+#define FEE_SDEV_IDX			(1U)
+#define POS_SDEV_IDX			(2U)
+#define PRINTER_SDEV_IDX		(3U)
+
 
 int load_config_from_file(struct server_context* context, char * ini_name);
 void railing_machine_init(struct server_context* context);
+void serial_devices_init(struct server_context* context);
 
 void do_railing_machine(void* d, uint8_t *buffer, uint32_t len);
 void do_canopy_light(void* d, uint8_t *buffer, uint32_t len);
 void do_fee_indicator(void* d, uint8_t *buffer, uint32_t len);
+void do_pos(void* d, uint8_t *buffer, uint32_t len);
+void do_ticket_printer(void* d, uint8_t *buffer, uint32_t len);
+
 #endif
