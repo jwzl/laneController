@@ -132,6 +132,38 @@ struct message* new_railing_status_message(uint8_t status){
 	return msg;
 }
 
+struct message* new_canopy_request(uint8_t status){
+	size_t size = sizeof(struct message)-2;
+	struct message* msg = new_message(2);
+
+	if(msg == NULL) return NULL;
+
+	msg->data[0] = 0xAB;
+	msg->data[1] = status;
+	
+	size += be2cpu(msg->length);
+	msg->data[2] = xor_sum(&msg->version, size);
+
+	return msg;
+}
+
+
+struct message* new_canopy_status_message(uint8_t status){
+	size_t size = sizeof(struct message) - 2;
+	struct message* msg = new_message(2);
+
+	if(msg == NULL) return NULL;
+
+	msg->data[0] = 0xDB;
+	msg->data[1] = status;
+
+	size += be2cpu(msg->length);
+	msg->data[2] = xor_sum(&msg->version, size);
+
+	return msg;
+}
+
+
 struct message* new_fee_indicator_request(uint8_t *data, uint32_t len){
 	size_t size = sizeof(struct message)-2;
 	struct message* msg = new_message(len+1);

@@ -26,6 +26,10 @@ int load_config_from_file(struct server_context* context, char * ini_name){
     /*railing*/
 	context->railing_ctrl_io = iniparser_getint(ini, "railing:ctrl_io", 120);
 
+	/*canopy*/
+	context->canopy_ctrl_io = iniparser_getint(ini, "canopy:ctrl_io", 130);
+	context->etc_ctrl_io = iniparser_getint(ini, "canopy:etc_io", 140);
+
 	//fee serial port settings.
 	dev = &context->devs[FEE_SDEV_IDX];
 	tmp = (char*)iniparser_getstring(ini, "fee:dev_node", "/dev/ttyS0");
@@ -36,8 +40,8 @@ int load_config_from_file(struct server_context* context, char * ini_name){
 	dev->parity = iniparser_getstring(ini, "fee:parity", "N")[0];
 	dev->stop_bit = iniparser_getint(ini, "fee:stop_bit", 1);
 	dev->debug = 1;
-	//printf("Fee use serial port [%s]: %d %d%c%d \r\n",dev->device, 
-	//		dev->baud, dev->data_bit, dev->parity, dev->stop_bit);
+	//printf("Fee usbaude serial port [%s]: %d %d%c%d \r\n",dev->device, 
+	//		dev->, dev->data_bit, dev->parity, dev->stop_bit);
 #if 0
     b = iniparser_getboolean(ini, "pizza:ham", -1);
     printf("Ham:       [%d]\n", b);

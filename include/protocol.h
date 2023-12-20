@@ -43,6 +43,8 @@ struct message* new_serial_info_request(uint8_t code);
 struct message* new_serial_info_response(uint8_t data[20]);
 struct message* new_railing_request(uint8_t status);
 struct message* new_railing_status_message(uint8_t status);
+struct message* new_canopy_request(uint8_t status);
+struct message* new_canopy_status_message(uint8_t status);
 struct message* new_fee_indicator_request(uint8_t *data, uint32_t len);
 struct message* new_fee_indicator_message(uint8_t status);
 struct message* new_pos_response(uint8_t status, uint8_t *data, uint32_t len);

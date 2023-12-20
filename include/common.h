@@ -26,6 +26,8 @@ struct server_context {
 	int keepalive_time;
 	int timeout;
 	int railing_ctrl_io;
+	int canopy_ctrl_io;
+	int etc_ctrl_io;
 	blocked_queue*  resp_queue;
 	serial_device_t	devs[SERIAL_NUM];
 	msg_handler*	handlers;

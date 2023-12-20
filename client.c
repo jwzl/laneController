@@ -140,6 +140,15 @@ static void* test_loop(void* p){
 	infof("fee_indicator status = %x \r\n", resp->data[1]);
 	if(resp) destory_message(&resp);
 
+	req = new_canopy_request(1);
+	resp = send_request(ctx,req);
+	if(!resp){
+		errorf("canopy failed\r\n");
+	}
+	destory_message(&req);
+	infof("canopy status = %x \r\n", resp->data[1]);
+	if(resp) destory_message(&resp);
+		
 	util_sleep_v2(5000);
 
 	
@@ -175,6 +184,7 @@ int main(int argc, char **argv)
 	}
 
 retry_connect:
+	printf("-----------------\n");
 	sockfd = connect_to(address, port, 10000);
 	if(sockfd < 0){
 		errorf("connect %s:%d failed with %d", address, port, sockfd);
