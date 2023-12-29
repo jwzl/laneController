@@ -7,7 +7,7 @@ OBJS = main.o  protocol.o \
 		drivers/gpio.o utils/log.o \
 		drivers/serial.o utils/dictionary.o \
 		utils/iniparser.o  utils/list.o \
-		utils/blockedqueue.o 
+		utils/blockedqueue.o drivers/staticio.o
 
 client_objs = client.o	protocol.o \
 			utils/thread.o utils/socket.o \
@@ -16,6 +16,7 @@ client_objs = client.o	protocol.o \
 			utils/blockedqueue.o 
 
 CFLAGS += -Iinclude
+LDFLAGS += -L ./libs -lbiodaq
 .PHONY : clean all
 
 all:${EXEC} client
